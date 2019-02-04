@@ -26,7 +26,7 @@ OFFERS_AMOUNT = 8
 class Splash():
     def __init__(self, root, wait):
         self.__root = root
-        self.__wait = wait + time.clock()
+        self.__wait = wait + time.process_time()
         self.__data = """R0lGODdhwADAAMQAAAAAABYbHhkeIRwhJFZWVltbW2RkZGl
         paaysq7CwrrS0sri4tr+/vdTU1Nvb2+Tk5Ozs7PPz8////wAAAAAAAAAAAAAAAAA
         AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAABMALAAAAADAAMAAAAX/4CS
@@ -88,7 +88,7 @@ class Splash():
         self.__splash = splash
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        now = time.clock()
+        now = time.process_time()
         if now < self.__wait:
             time.sleep(self.__wait - now)
 
@@ -264,7 +264,7 @@ class App():
 
         self.current = -1
 
-        c = requests.get('https://www.realmeye.com/current-offers')
+        c = requests.get('https://www.realmeye.com/current-offers',headers={'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'})
         v = c.content
         soup = BeautifulSoup(v, 'lxml')
         for x, y in zip([item['href'] for item in soup.find_all('a', {'class': 'item-selling'})],
@@ -290,8 +290,7 @@ class App():
         return word
 
     def getPageWithNewInfo(self):
-        user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
-        headers = {'User-Agent': user_agent}
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'}
         try:
             url = 'http://www.realmeye.com/offers-to/sell/' + str(self.dictionaryCheck(self.entry.get())) + '/'+str(self.dictionaryCheck(self.entry1.get()))+''
             page = requests.get(url, headers=headers)
@@ -323,7 +322,9 @@ class App():
             else:
                 self.offersListbox.insert(END, str(self.entry.get())+' : '+''.join(Buy).replace('×','')+'; '+str(self.entry1.get())+' : '+''.join(Sell).replace('×',''))
                 self.Sellerlist.append(str('').join(Seller))
-                if int(''.join(Sell).replace('×','')) <= 1:
+                if int(''.join(Sell).replace('×','')) > 1:
+                    priceList.append(int(''.join(Sell).replace('×','')))
+                else:
                     priceList.append(int(''.join(Buy).replace('×','')))
                 if 'glyphicon glyphicon-info-sign' in WarningTag:
                     self.offersListbox.itemconfig(i-1,{'bg':'orange'})
